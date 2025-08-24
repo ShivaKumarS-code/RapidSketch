@@ -70,14 +70,12 @@ export default function PromptInput({ onCodeUpdate }: PromptInputProps) {
   };
 
   return (
-    <div className="bg-black border-t border-white/20 p-3 sm:p-4 lg:p-6 animate-fade-in">
+    <div className="bg-black/80 backdrop-blur-sm border-t border-cyan-400/30 p-3 sm:p-4 lg:p-6 animate-fade-in shadow-lg shadow-cyan-500/10">
       <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
-        <div className={`relative bg-black border rounded-xl overflow-hidden transition-all duration-500 transform ${
-          isFocused ? 'border-white/30 shadow-xl shadow-white/5 scale-[1.02]' : 'border-white/20'
-        }`}>
-          <div className="flex items-center px-3 sm:px-4 py-2 sm:py-3 border-b border-white/20">
-            <Sparkles className="w-4 h-4 text-white/60 mr-2 animate-pulse" />
-            <span className="text-white/60 text-xs sm:text-sm">Describe your UI or upload an image reference</span>
+        <div className={`relative bg-gray-950 border rounded-xl overflow-hidden transition-all duration-500 transform ${ isFocused ? 'border-cyan-400 shadow-2xl shadow-cyan-500/20 scale-[1.02]' : 'border-cyan-400/30'}`}>
+          <div className="flex items-center px-3 sm:px-4 py-2 sm:py-3 border-b border-cyan-400/30">
+            <Sparkles className="w-4 h-4 text-cyan-400 mr-2 animate-pulse" />
+            <span className="text-cyan-400/80 text-xs sm:text-sm">Describe your UI</span>
           </div>
           
           <div className="flex items-start p-3 sm:p-4">
@@ -87,31 +85,14 @@ export default function PromptInput({ onCodeUpdate }: PromptInputProps) {
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
               placeholder="Create a modern landing page with a hero section, navigation bar, and call-to-action buttons..."
-              className="flex-1 bg-transparent text-white placeholder-white/40 resize-none border-none outline-none min-h-[60px] sm:min-h-[80px] max-h-[150px] sm:max-h-[200px] transition-all duration-300 text-sm sm:text-base"
+              className="flex-1 bg-transparent text-gray-300 placeholder-gray-500 resize-none border-none outline-none min-h-[60px] sm:min-h-[80px] max-h-[150px] sm:max-h-[200px] transition-all duration-300 text-sm sm:text-base"
               rows={2}
             />
-            
-            <div className="flex items-center space-x-1 sm:space-x-2 ml-2 sm:ml-4">
-              <button
-                type="button"
-                className="text-white/50 hover:text-white transition-all duration-300 p-2 rounded-lg hover:bg-white/5 transform hover:scale-110"
-                title="Add image reference"
-              >
-                <Image className="w-4 h-4 sm:w-5 sm:h-5" />
-              </button>
-              <button
-                type="button"
-                className="text-white/50 hover:text-white transition-all duration-300 p-2 rounded-lg hover:bg-white/5 transform hover:scale-110"
-                title="Code snippet"
-              >
-                <Code className="w-4 h-4 sm:w-5 sm:h-5" />
-              </button>
-            </div>
           </div>
           
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-3 sm:px-4 py-3 bg-black/50 space-y-2 sm:space-y-0">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-3 sm:px-4 py-3 bg-gray-950/50 space-y-2 sm:space-y-0">
             <div className="flex items-center space-x-2 sm:space-x-4 w-full sm:w-auto">
-              <span className="text-white/50 text-sm">
+              <span className="text-gray-500 text-sm">
                 {prompt.length}/2000
               </span>
             </div>
@@ -119,11 +100,11 @@ export default function PromptInput({ onCodeUpdate }: PromptInputProps) {
             <button
               type="submit"
               disabled={!prompt.trim() || isGenerating}
-              className="bg-white text-black px-4 sm:px-6 py-2 rounded-lg font-medium hover:bg-white/90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 transform hover:scale-105 hover:shadow-lg hover:shadow-white/20 w-full sm:w-auto justify-center"
+              className="bg-gradient-to-r from-cyan-400 to-blue-700 text-white px-4 sm:px-6 py-2 rounded-lg font-medium hover:from-cyan-500 hover:to-blue-800 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 transform hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/30 w-full sm:w-auto justify-center"
             >
               {isGenerating ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                  <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
                   <span className="text-sm sm:text-base">Generating...</span>
                 </>
               ) : (

@@ -52,8 +52,10 @@ export default function FileExplorer({ isOpen = true, onToggle, className = '', 
     return (
       <div key={currentPath} className="animate-slide-in">
         <div
-          className={`flex items-center py-1.5 sm:py-2 px-2 hover:bg-white/5 cursor-pointer transition-all duration-300 transform hover:translate-x-1 ${
-            isSelected ? 'bg-white/10 border-r-2 border-white shadow-lg shadow-white/5' : ''
+          className={`flex items-center py-1.5 sm:py-2 px-2 cursor-pointer transition-all duration-300 transform hover:translate-x-1 rounded-md mx-2 my-0.5 ${
+            isSelected 
+              ? 'bg-cyan-400/10 border-r-2 border-cyan-400 shadow-lg shadow-cyan-500/10 text-cyan-300' 
+              : 'text-gray-400 hover:bg-cyan-400/5 hover:text-cyan-400'
           }`}
           style={{ paddingLeft: `${level * 10 + 8}px` }}
           onClick={() => {
@@ -68,26 +70,26 @@ export default function FileExplorer({ isOpen = true, onToggle, className = '', 
             <>
               <div className="transition-transform duration-300">
                 {node.isOpen ? (
-                  <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 text-white/60 mr-1" />
+                  <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                 ) : (
-                  <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 text-white/60 mr-1" />
+                  <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                 )}
               </div>
               <div className="transition-all duration-300">
                 {node.isOpen ? (
-                  <FolderOpen className="w-3 h-3 sm:w-4 sm:h-4 text-white/60 mr-1.5 sm:mr-2" />
+                  <FolderOpen className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
                 ) : (
-                  <Folder className="w-3 h-3 sm:w-4 sm:h-4 text-white/60 mr-1.5 sm:mr-2" />
+                  <Folder className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
                 )}
               </div>
             </>
           ) : (
             <>
               <div className="w-3 sm:w-4 mr-1" />
-              <File className="w-3 h-3 sm:w-4 sm:h-4 text-white/60 mr-1.5 sm:mr-2" />
+              <File className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
             </>
           )}
-          <span className={`text-xs sm:text-sm transition-all duration-300 truncate ${isSelected ? 'text-white font-medium' : 'text-white/80'}`}>
+          <span className={`text-xs sm:text-sm transition-all duration-300 truncate ${isSelected ? 'font-semibold' : ''}`}>
             {node.name}
           </span>
         </div>
@@ -113,22 +115,22 @@ export default function FileExplorer({ isOpen = true, onToggle, className = '', 
       {/* File Explorer */}
       <div className={`
         ${onToggle ? 'fixed md:relative z-50 md:z-auto' : 'relative'}
-        bg-black border-r border-white/20 
+        bg-black/80 backdrop-blur-sm border-r border-cyan-400/30 
         w-64 sm:w-72 md:w-64 lg:w-72 xl:w-80
         flex flex-col transition-transform duration-300 ease-in-out
         ${onToggle ? (isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0') : ''}
         h-full
         ${className}
       `}>
-        <div className="flex items-center justify-between p-3 sm:p-4 border-b border-white/20">
-          <h3 className="text-white font-medium text-sm sm:text-base">Files</h3>
+        <div className="flex items-center justify-between p-3 sm:p-4 border-b border-cyan-400/30">
+          <h3 className="text-cyan-400 font-bold text-sm sm:text-base tracking-wider">Files</h3>
           <div className="flex items-center space-x-2">
-            <button className="text-white/60 hover:text-white transition-all duration-300 p-1 rounded hover:bg-white/5 transform hover:scale-110">
+            <button className="text-cyan-400/70 hover:text-cyan-400 transition-all duration-300 p-1 rounded hover:bg-cyan-400/10 transform hover:scale-110">
               <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
             </button>
             {onToggle && (
               <button 
-                className="md:hidden text-white/60 hover:text-white transition-all duration-300 p-1 rounded hover:bg-white/5"
+                className="md:hidden text-cyan-400/70 hover:text-cyan-400 transition-all duration-300 p-1 rounded hover:bg-cyan-400/10"
                 onClick={onToggle}
               >
                 <X className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -136,8 +138,14 @@ export default function FileExplorer({ isOpen = true, onToggle, className = '', 
             )}
           </div>
         </div>
-        <div className="flex-1 overflow-auto">
-          {files.map(node => renderNode(node))}
+        <div className="flex-1 overflow-auto py-2">
+          {files.length > 0 ? (
+            files.map(node => renderNode(node))
+          ) : (
+            <div className="p-4 text-cyan-400/60 text-sm text-center">
+              Generate code to see files here.
+            </div>
+          )}
         </div>
       </div>
     </>
