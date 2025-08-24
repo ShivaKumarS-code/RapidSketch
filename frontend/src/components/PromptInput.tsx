@@ -20,7 +20,7 @@ export default function PromptInput({ onCodeUpdate }: PromptInputProps) {
     if (prompt.trim()) {
       setIsGenerating(true);
       try {
-        const response = await fetch('http://localhost:3001/api/generate', {
+        const response = await fetch('https://rapidsketch.onrender.com/api/generate', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
