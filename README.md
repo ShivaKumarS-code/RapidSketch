@@ -14,7 +14,7 @@
 ## 🚀 Live Demo
 
 <blockquote>
-🌐 Experience RapidSketch in action: <a href="https://rapid-sketch-frontend.vercel.app"><b>Live Demo</b></a>
+🌐 Experience RapidSketch in action: <a href="https://rapid-sketch.vercel.app"><b>Live Demo</b></a>
 </blockquote>
 
 Try entering a prompt and watch as AI generates a complete, interactive frontend application in seconds!
