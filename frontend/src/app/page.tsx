@@ -96,10 +96,10 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center space-x-3 group cursor-pointer">
             <div className="w-10 h-10 flex items-center justify-center">
-              <Image src="/logo.png" alt="RapidSketch Logo" width={40} height={40} className="transform scale-230" />
+              <Image src="/logo2.png" alt="RapidSketch Logo" width={40} height={40} className="transform scale-200" />
             </div>
             <h1 className="text-white font-bold text-xl sm:text-2xl tracking-tight bg-gradient-to-r from-white to-gray-300 bg-clip-text">
-              Rapid<span className='text-yellow-200'>S</span>ketch
+              Rapid<span className='text-blue-400'>SKETCH</span>
             </h1>
           </div>
           
@@ -345,16 +345,16 @@ export default function LandingPage() {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center space-x-3 mb-6 md:mb-0">
               <div className="w-8 h-8 flex items-center justify-center">
-                <Image src="/logo.png" alt="RapidSketch Logo" width={32} height={32} className="transform scale-230" />
+                <Image src="/logo2.png" alt="RapidSketch Logo" width={32} height={32} className="transform scale-200" />
               </div>
               <h2 className="text-white font-bold text-xl bg-gradient-to-r from-white to-gray-300 bg-clip-text">
-                Rapid<span className='text-yellow-200'>S</span>ketch
+                Rapid<span className='text-blue-400'>SKETCH</span>
               </h2>
             </div>
           </div>
           
           <div className="mt-8 text-center text-gray-500 text-sm">
-            © {new Date().getFullYear()} RapidSketch. All rights reserved. Built with ❤️ and AI.
+            © {new Date().getFullYear()} RapidSketch. All rights reserved.
           </div>
         </div>
       </footer>

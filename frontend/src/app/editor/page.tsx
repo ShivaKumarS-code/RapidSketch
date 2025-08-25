@@ -51,6 +51,7 @@ export default function Home() {
             showMenuButton={!isFileExplorerOpen} 
             code={activeFile ? activeFile.content : ''} 
             files={files}
+            activeFile={activeFile}
           />
           <PromptInput onCodeUpdate={handleCodeUpdate} />
         </div>
