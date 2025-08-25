@@ -29,7 +29,7 @@ export default function RootLayout({
           rel="icon"
           type="image/png"
           sizes="48x48"
-          href="/logo.png?v=2"
+          href="/logo2.png?v=2"
         />
       </head>
       <body
