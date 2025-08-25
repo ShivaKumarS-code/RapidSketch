@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react';
-import { Copy, Download, Eye, Code2 } from 'lucide-react';
+import { Copy, Download, Eye, Code2, ExternalLink } from 'lucide-react';
 import { FileNode } from '@/types';
 import JSZip from 'jszip';
 
@@ -139,6 +139,15 @@ export default function CodeEditor({
     });
   };
 
+  const handleOpenInNewWindow = () => {
+    const newWindow = window.open('', '_blank');
+    if (newWindow) {
+      newWindow.document.write(combinedHtml);
+      newWindow.document.close();
+      newWindow.focus();
+    }
+  };
+
   return (
     <div className={`flex-1 flex flex-col bg-gray-950/50 animate-fade-in ${className}`}>
       {/* Header/Toolbar */}
@@ -169,6 +178,13 @@ export default function CodeEditor({
         </div>
         
         <div className="flex items-center space-x-1 sm:space-x-2 w-full sm:w-auto justify-end">
+          <button 
+            onClick={handleOpenInNewWindow}
+            className="flex text-cyan-400/70 hover:text-cyan-400 transition-all duration-300 p-2 rounded-lg hover:bg-cyan-400/10 transform hover:scale-110 items-center justify-center"
+            title="Open preview in new window"
+          >
+            <ExternalLink className="w-4 h-4" />
+          </button>
           <button 
             onClick={handleCopy}
             className="flex text-cyan-400/70 hover:text-cyan-400 transition-all duration-300 p-2 rounded-lg hover:bg-cyan-400/10 transform hover:scale-110 items-center justify-center"
