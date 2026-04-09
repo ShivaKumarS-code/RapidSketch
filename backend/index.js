@@ -443,7 +443,7 @@ REMEMBER:
 
     const chatCompletion = await cerebras.chat.completions.create({
       messages: [{ role: 'user', content: enhancedPrompt }],
-      model: 'qwen-3-coder-480b', // Or your preferred model
+      model: 'qwen-3-235b-a22b-instruct-2507',
     });
 
     const rawResponse = chatCompletion.choices[0].message.content;
