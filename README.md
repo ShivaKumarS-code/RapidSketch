@@ -9,7 +9,7 @@
   <img src="https://img.shields.io/badge/Cerebras-FF6B6B?style=for-the-badge&logo=ai&logoColor=white" alt="Cerebras AI">
 </p>
 
-**RapidSketch** is a revolutionary web-based development environment that transforms a single natural language prompt into a fully functional, live-previewed frontend application. Build interactive prototypes in seconds, not hours.
+**RapidSketch** is a revolutionary web-based development environment that transforms a single natural language prompt into a fully functional, live-previewed frontend application. Build interactive prototypes in seconds and not hours.
 
 ## 🚀 Live Demo
 
