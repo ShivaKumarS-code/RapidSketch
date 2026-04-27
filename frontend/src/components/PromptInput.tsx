@@ -1,120 +1,116 @@
 'use client'
 
-import { useState } from 'react';
-import { Send, Sparkles, Image, Code } from 'lucide-react';
-
+import { useState, useRef } from 'react';
+import { Send, Square, Wand2 } from 'lucide-react';
 import { FileNode } from '@/types';
 
 interface PromptInputProps {
   onCodeUpdate: (files: FileNode[]) => void;
+  currentFiles?: FileNode[];
+  onMenuClick?: () => void;
 }
 
-export default function PromptInput({ onCodeUpdate }: PromptInputProps) {
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
+
+function getSessionId() {
+  if (typeof window === 'undefined') return 'default';
+  const key = 'rs_session';
+  let id = sessionStorage.getItem(key);
+  if (!id) { id = crypto.randomUUID(); sessionStorage.setItem(key, id); }
+  return id;
+}
+
+export default function PromptInput({ onCodeUpdate, currentFiles = [] }: PromptInputProps) {
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isFocused, setIsFocused] = useState(false);
-  const [framework, setFramework] = useState('React');
+  const [status, setStatus] = useState('');
+  const abortRef = useRef<AbortController | null>(null);
+  const isRefine = currentFiles.length > 0;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (prompt.trim()) {
-      setIsGenerating(true);
-      try {
-        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
-        const response = await fetch(`${backendUrl}/api/generate`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ prompt: `${prompt} using ${framework}` }),
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+    if (!prompt.trim() || isGenerating) return;
+    setIsGenerating(true);
+    setStatus('Connecting...');
+    abortRef.current = new AbortController();
+    const endpoint = isRefine ? '/api/refine' : '/api/generate';
+    const body = isRefine
+      ? { instruction: prompt, files: currentFiles, session_id: getSessionId() }
+      : { prompt, session_id: getSessionId() };
+    try {
+      const res = await fetch(`${BACKEND_URL}${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        signal: abortRef.current.signal,
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.body) throw new Error('No stream');
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buf = '';
+      setStatus('Generating...');
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, { stream: true });
+        const lines = buf.split('\n');
+        buf = lines.pop() ?? '';
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          try {
+            const ev = JSON.parse(line.slice(6));
+            if (ev.type === 'files') { onCodeUpdate(ev.files); setPrompt(''); setStatus('Done'); }
+            else if (ev.type === 'error') throw new Error(ev.message);
+          } catch { /* skip malformed */ }
         }
-
-        const files = await response.json();
-        console.log('Received files:', files); // Debug log
-        
-        // Make sure we're passing an array of files
-        if (Array.isArray(files) && files.length > 0) {
-          onCodeUpdate(files);
-        } else {
-          console.error('No files received or invalid format');
-          // Fallback: create a simple HTML file if no files returned
-          const fallbackFile: FileNode = {
-            name: 'index.html',
-            content: `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generated Content</title>
-</head>
-<body>
-    <h1>Generated content will appear here</h1>
-    <p>Prompt: ${prompt}</p>
-</body>
-</html>`,
-            type: 'file'
-          };
-          onCodeUpdate([fallbackFile]);
-        }
-      } catch (error) {
-        console.error('Error generating code:', error);
-        // Show error to user
-        alert('Failed to generate code. Please check your backend server.');
-      } finally {
-        setIsGenerating(false);
       }
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name !== 'AbortError') {
+        setStatus('Error — check backend'); console.error(err);
+      }
+    } finally {
+      setIsGenerating(false);
+      setTimeout(() => setStatus(''), 2000);
     }
   };
 
   return (
-    <div className="bg-black/80 backdrop-blur-sm border-t border-cyan-400/30 p-3 sm:p-4 lg:p-6 animate-fade-in shadow-lg shadow-cyan-500/10">
-      <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
-        <div className={`relative bg-gray-950 border rounded-xl overflow-hidden transition-all duration-500 transform ${ isFocused ? 'border-cyan-400 shadow-2xl shadow-cyan-500/20 scale-[1.02]' : 'border-cyan-400/30'}`}>
-          <div className="flex items-center px-3 sm:px-4 py-2 sm:py-3 border-b border-cyan-400/30">
-            <Sparkles className="w-4 h-4 text-cyan-400 mr-2 animate-pulse" />
-            <span className="text-cyan-400/80 text-xs sm:text-sm">Describe your UI</span>
-          </div>
-          
-          <div className="flex items-start p-3 sm:p-4">
+    <div className="shrink-0 border-t border-[#1e1e1e] bg-[#0c0c0c] px-4 py-3">
+      <form onSubmit={handleSubmit}>
+        <div className="flex items-end gap-3 bg-[#141414] border border-[#2a2a2a] rounded-xl px-4 py-3 focus-within:border-[#3a3a3a] transition-colors">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-2">
+              <Wand2 className="w-3.5 h-3.5 text-gray-600" />
+              <span className="text-xs text-gray-600">{isRefine ? 'Refine' : 'Generate'}</span>
+              {isRefine && (
+                <span className="text-xs bg-[#1e1e1e] text-gray-500 px-2 py-0.5 rounded-full border border-[#2a2a2a]">refine mode</span>
+              )}
+              {status && <span className="text-xs text-gray-600 ml-auto animate-pulse">{status}</span>}
+            </div>
             <textarea
               value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              onFocus={() => setIsFocused(true)}
-              onBlur={() => setIsFocused(false)}
-              placeholder="Create a modern landing page with a hero section, navigation bar, and call-to-action buttons..."
-              className="flex-1 bg-transparent text-gray-300 placeholder-gray-500 resize-none border-none outline-none min-h-[60px] sm:min-h-[80px] max-h-[150px] sm:max-h-[200px] transition-all duration-300 text-sm sm:text-base"
+              onChange={e => setPrompt(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleSubmit(e); }}
+              placeholder={isRefine ? 'Make it darker, add a login form...' : 'Describe the UI you want to build...'}
               rows={2}
+              className="w-full bg-transparent text-sm text-gray-200 placeholder-gray-700 resize-none outline-none leading-relaxed"
             />
           </div>
-          
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-3 sm:px-4 py-3 bg-gray-950/50 space-y-2 sm:space-y-0">
-            <div className="flex items-center space-x-2 sm:space-x-4 w-full sm:w-auto">
-              <span className="text-gray-500 text-sm">
-                {prompt.length}/2000
-              </span>
-            </div>
-            
-            <button
-              type="submit"
-              disabled={!prompt.trim() || isGenerating}
-              className="bg-gradient-to-r from-cyan-400 to-blue-700 text-white px-4 sm:px-6 py-2 rounded-lg font-medium hover:from-cyan-500 hover:to-blue-800 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 transform hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/30 w-full sm:w-auto justify-center"
-            >
-              {isGenerating ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                  <span className="text-sm sm:text-base">Generating...</span>
-                </>
-              ) : (
-                <>
-                  <Send className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
-                  <span className="text-sm sm:text-base">Generate</span>
-                </>
-              )}
-            </button>
+          <div className="flex items-center gap-2 shrink-0 pb-0.5">
+            <span className="text-xs text-gray-700 hidden sm:block">{prompt.length}/2000</span>
+            {isGenerating ? (
+              <button type="button" onClick={() => { abortRef.current?.abort(); setIsGenerating(false); }}
+                className="flex items-center gap-1.5 bg-[#1e1e1e] hover:bg-[#2a2a2a] text-gray-400 text-xs px-3 py-2 rounded-lg border border-[#2a2a2a] transition-colors">
+                <Square className="w-3.5 h-3.5" /> Stop
+              </button>
+            ) : (
+              <button type="submit" disabled={!prompt.trim()}
+                className="flex items-center gap-1.5 bg-white hover:bg-gray-100 text-black text-xs font-medium px-4 py-2 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+                <Send className="w-3.5 h-3.5" />
+                {isRefine ? 'Refine' : 'Generate'}
+              </button>
+            )}
           </div>
         </div>
       </form>
