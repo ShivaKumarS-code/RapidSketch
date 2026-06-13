@@ -1,151 +1,85 @@
 'use client'
 
 import { useState, useEffect } from 'react';
-import { ChevronRight, ChevronDown, File, Folder, FolderOpen, Plus, X, Menu } from 'lucide-react';
-
+import { ChevronRight, ChevronDown, FileCode, FileType, X } from 'lucide-react';
 import { FileNode } from '@/types';
 
 interface FileExplorerProps {
   isOpen?: boolean;
   onToggle?: () => void;
-  className?: string;
   files: FileNode[];
   onFileSelect: (file: FileNode) => void;
   activeFile: FileNode | null;
 }
 
-export default function FileExplorer({ isOpen = true, onToggle, className = '', files: initialFiles, onFileSelect, activeFile }: FileExplorerProps) {
+function fileIcon(name: string) {
+  if (name.endsWith('.jsx') || name.endsWith('.tsx')) return <FileCode className="w-3.5 h-3.5 text-blue-400/70" />;
+  if (name.endsWith('.css')) return <FileType className="w-3.5 h-3.5 text-pink-400/70" />;
+  return <FileCode className="w-3.5 h-3.5 text-gray-500" />;
+}
+
+export default function FileExplorer({ isOpen = true, onToggle, files: initialFiles, onFileSelect, activeFile }: FileExplorerProps) {
   const [files, setFiles] = useState<FileNode[]>(initialFiles);
 
-  useEffect(() => {
-    setFiles(initialFiles);
-  }, [initialFiles]);
+  useEffect(() => { setFiles(initialFiles); }, [initialFiles]);
 
-  const toggleFolder = (path: string) => {
-    const updateNode = (nodes: FileNode[], currentPath: string = ''): FileNode[] => {
-      return nodes.map(node => {
-        const nodePath = currentPath ? `${currentPath}/${node.name}` : node.name;
-        if (nodePath === path && node.type === 'folder') {
-          return { ...node, isOpen: !node.isOpen };
-        }
-        if (node.children) {
-          return { ...node, children: updateNode(node.children, nodePath) };
-        }
-        return node;
-      });
-    };
-    setFiles(updateNode(files));
-  };
-
-  const handleFileSelect = (file: FileNode) => {
-    onFileSelect(file);
-    // Close mobile sidebar when file is selected
-    if (onToggle && window.innerWidth < 768) {
-      onToggle();
-    }
-  };
-
-  const renderNode = (node: FileNode, level: number = 0, path: string = '') => {
+  const renderNode = (node: FileNode, level = 0, path = '') => {
     const currentPath = path ? `${path}/${node.name}` : node.name;
-    const isSelected = activeFile ? activeFile.name === node.name : false;
+    const isSelected = activeFile?.name === node.name;
 
     return (
-      <div key={currentPath} className="animate-slide-in">
+      <div key={currentPath}>
         <div
-          className={`flex items-center py-1.5 sm:py-2 px-2 cursor-pointer transition-all duration-300 transform hover:translate-x-1 rounded-md mx-2 my-0.5 ${
-            isSelected 
-              ? 'bg-cyan-400/10 border-r-2 border-cyan-400 shadow-lg shadow-cyan-500/10 text-cyan-300' 
-              : 'text-gray-400 hover:bg-cyan-400/5 hover:text-cyan-400'
-          }`}
-          style={{ paddingLeft: `${level * 10 + 8}px` }}
           onClick={() => {
             if (node.type === 'folder') {
-              toggleFolder(currentPath);
+              setFiles(prev => prev.map(f => f.name === node.name ? { ...f, isOpen: !f.isOpen } : f));
             } else {
-              handleFileSelect(node);
+              onFileSelect(node);
+              if (onToggle && window.innerWidth < 768) onToggle();
             }
           }}
+          className={`flex items-center gap-2 px-3 py-1.5 cursor-pointer text-xs transition-colors rounded mx-1 my-0.5 ${
+            isSelected
+              ? 'bg-[#1e1e1e] text-white'
+              : 'text-gray-500 hover:text-gray-300 hover:bg-[#161616]'
+          }`}
+          style={{ paddingLeft: `${level * 12 + 12}px` }}
         >
-          {node.type === 'folder' ? (
-            <>
-              <div className="transition-transform duration-300">
-                {node.isOpen ? (
-                  <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                ) : (
-                  <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                )}
-              </div>
-              <div className="transition-all duration-300">
-                {node.isOpen ? (
-                  <FolderOpen className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
-                ) : (
-                  <Folder className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
-                )}
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="w-3 sm:w-4 mr-1" />
-              <File className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
-            </>
-          )}
-          <span className={`text-xs sm:text-sm transition-all duration-300 truncate ${isSelected ? 'font-semibold' : ''}`}>
-            {node.name}
-          </span>
+          {node.type === 'folder'
+            ? node.isOpen ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />
+            : fileIcon(node.name)
+          }
+          <span className={isSelected ? 'text-white' : ''}>{node.name}</span>
         </div>
-        {node.type === 'folder' && node.isOpen && node.children && (
-          <div className="animate-expand">
-            {node.children.map(child => renderNode(child, level + 1, currentPath))}
-          </div>
-        )}
+        {node.type === 'folder' && node.isOpen && node.children?.map(c => renderNode(c, level + 1, currentPath))}
       </div>
     );
   };
 
   return (
     <>
-      {/* Mobile Overlay */}
       {isOpen && onToggle && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
-          onClick={onToggle}
-        />
+        <div className="fixed inset-0 bg-black/60 z-40 md:hidden" onClick={onToggle} />
       )}
-      
-      {/* File Explorer */}
       <div className={`
         ${onToggle ? 'fixed md:relative z-50 md:z-auto' : 'relative'}
-        bg-black/80 backdrop-blur-sm border-r border-cyan-400/30 
-        w-64 sm:w-72 md:w-64 lg:w-72 xl:w-80
-        flex flex-col transition-transform duration-300 ease-in-out
+        w-52 shrink-0 flex flex-col border-r border-[#1e1e1e] bg-[#0c0c0c] h-full
+        transition-transform duration-200
         ${onToggle ? (isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0') : ''}
-        h-full
-        ${className}
       `}>
-        <div className="flex items-center justify-between p-3 sm:p-4 border-b border-cyan-400/30">
-          <h3 className="text-cyan-400 font-bold text-sm sm:text-base tracking-wider">Files</h3>
-          <div className="flex items-center space-x-2">
-            <button className="text-cyan-400/70 hover:text-cyan-400 transition-all duration-300 p-1 rounded hover:bg-cyan-400/10 transform hover:scale-110">
-              <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
+        <div className="flex items-center justify-between px-3 py-2.5 border-b border-[#1e1e1e]">
+          <span className="text-xs font-medium text-gray-600 uppercase tracking-wider">Explorer</span>
+          {onToggle && (
+            <button onClick={onToggle} className="md:hidden text-gray-600 hover:text-gray-300 p-0.5 rounded transition-colors">
+              <X className="w-3.5 h-3.5" />
             </button>
-            {onToggle && (
-              <button 
-                className="md:hidden text-cyan-400/70 hover:text-cyan-400 transition-all duration-300 p-1 rounded hover:bg-cyan-400/10"
-                onClick={onToggle}
-              >
-                <X className="w-3 h-3 sm:w-4 sm:h-4" />
-              </button>
-            )}
-          </div>
-        </div>
-        <div className="flex-1 overflow-auto py-2">
-          {files.length > 0 ? (
-            files.map(node => renderNode(node))
-          ) : (
-            <div className="p-4 text-cyan-400/60 text-sm text-center">
-              Generate code to see files here.
-            </div>
           )}
+        </div>
+        <div className="flex-1 overflow-y-auto py-1">
+          {files.length > 0
+            ? files.map(n => renderNode(n))
+            : <p className="text-xs text-gray-700 text-center mt-6 px-3">Generate code to see files</p>
+          }
         </div>
       </div>
     </>
