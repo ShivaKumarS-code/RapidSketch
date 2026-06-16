@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Poppins } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-poppins",
+});
 
 export const metadata: Metadata = {
   title: "RapidSketch — AI React Generator",
@@ -11,11 +15,13 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className="h-full">
       <head>
         <link rel="icon" type="image/png" sizes="48x48" href="/logo2.png" />
       </head>
-      <body className={inter.variable}>{children}</body>
+      <body className={`${poppins.className} min-h-full flex flex-col bg-black text-[#e8e8e8] antialiased`}>
+        {children}
+      </body>
     </html>
   );
 }
