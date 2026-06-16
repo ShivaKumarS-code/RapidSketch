@@ -1415,12 +1415,23 @@ export default function EditorPage() {
         </div>
 
         {/* Iframe Viewport Container */}
-        <div style={{ flex: 1, backgroundColor: '#000000', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', overflow: 'hidden', position: 'relative', boxSizing: 'border-box' }}>
+        <div style={{ 
+          flex: 1, 
+          backgroundColor: '#000000', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center', 
+          padding: viewportMode === 'desktop' ? '0' : '24px', 
+          overflow: 'hidden', 
+          position: 'relative', 
+          boxSizing: 'border-box' 
+        }}>
           <div 
             style={{
               width: viewportMode === 'desktop' ? '100%' : viewportMode === 'tablet' ? '768px' : '375px',
+              maxWidth: '100%',
               height: '100%',
-              transition: 'width 0.3s ease-in-out',
+              transition: 'all 0.3s ease-in-out',
               border: viewportMode === 'desktop' ? 'none' : '1px solid #1f2937',
               borderRadius: viewportMode === 'desktop' ? '0px' : '12px',
               boxShadow: viewportMode === 'desktop' ? 'none' : '0 10px 30px rgba(0,0,0,0.5)',
