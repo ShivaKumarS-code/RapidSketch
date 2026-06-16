@@ -13,7 +13,7 @@ graph TD
     A[User Enters Prompt] --> B[Next.js Client Editor]
     B --> C[FastAPI Server]
     C --> D[LangChain chains]
-    D --> E[Groq Llama 3.3 70B Model]
+    D --> E[Cerebras zai-glm-4.7 Model]
     E --> F[Server-Sent Events Token Stream]
     F --> B
     B --> G[Babel Standalone compiler]
@@ -21,8 +21,8 @@ graph TD
 ```
 
 ### 1. LangChain AI Stream Engine (FastAPI Backend)
-* **Structured Generation**: Streams Llama 3.3 tokens in real-time. Code generation is handled via LangChain pipelines (`generate.py` and `refine.py`).
-* **Iterative Refinement**: The AI retains chat context, letting users refine components using conversational text requests.
+* **Structured Generation**: Streams `zai-glm-4.7` tokens in real-time. Code generation is handled via LangChain pipelines (`generate.py` and `refine.py`).
+* **Cerebras Inference**: Leverages the ultra-fast Cerebras Inference API for high-speed token generation.
 * **Structured Parsing**: Backend parses and packages structured files (e.g. `App.jsx`, `styles.css`) for the client.
 
 ### 2. Client-Side Sandboxed Compiler (Babel Standalone)
@@ -41,7 +41,7 @@ graph TD
 ### 1. Prerequisites
 * **Node.js** (v18+) and npm installed
 * **Python** (v3.10+) installed
-* **Groq Cloud API Key**
+* **Cerebras API Key**
 
 ---
 
@@ -51,7 +51,9 @@ Open a terminal in the `/backend` directory:
 1. **Configure Environment Variables**:
    Create a `.env` file inside `/backend` (using `.env.example` as a template):
    ```env
-   GROQ_API_KEY="your-groq-api-key"
+   CEREBRAS_API_KEY="your-cerebras-api-key"
+   SUPABASE_URL="https://your-project.supabase.co"
+   SUPABASE_SERVICE_ROLE_KEY="your-supabase-service-role-key"
    SUPABASE_JWT_SECRET="your-supabase-jwt-secret"
    ```
 

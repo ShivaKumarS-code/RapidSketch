@@ -295,7 +295,7 @@ const features = [
 	{
 		title: 'AI Code Streaming',
 		icon: Zap,
-		description: 'Powered by Groq and Llama 3.3 for lightning-fast, real-time React code generation.',
+		description: 'Powered by Cerebras and GLM 4.7 for lightning-fast, real-time React code generation.',
 	},
 	{
 		title: 'Live Preview Sandbox',

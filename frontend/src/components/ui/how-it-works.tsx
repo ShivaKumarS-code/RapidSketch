@@ -89,7 +89,7 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({
       description:
         "Watch the AI model stream full React source code components in real-time, building out the architecture.",
       benefits: [
-        "Powered by Groq for maximum speed",
+        "Powered by Cerebras for maximum speed",
         "Complete multi-file code generator",
         "Well-structured components",
       ],
