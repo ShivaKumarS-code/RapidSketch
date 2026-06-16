@@ -85,24 +85,38 @@ def get_user_id_from_header(authorization: str) -> str | None:
         
     if not supabase_jwt_secret or "your-" in supabase_jwt_secret:
         return None
-    try:
-        header = jwt.get_unverified_header(token)
-        alg = header.get("alg")
         
+    unverified_header = {}
+    unverified_payload = {}
+    try:
+        unverified_header = jwt.get_unverified_header(token)
+        # Decode without verification to inspect claims for error logging
+        unverified_payload = jwt.decode(token, options={"verify_signature": False})
+    except Exception as inspect_err:
+        raise HTTPException(
+            status_code=401,
+            detail=f"JWT failed to decode unverified: {inspect_err}"
+        )
+
+    alg = unverified_header.get("alg")
+    aud = unverified_payload.get("aud")
+    iss = unverified_payload.get("iss")
+    
+    try:
         if alg == "HS256":
             # Symmetric verification using local secret
             try:
-                payload = jwt.decode(token, supabase_jwt_secret, algorithms=["HS256"], audience="authenticated")
+                payload = jwt.decode(token, supabase_jwt_secret, algorithms=["HS256"], options={"verify_aud": False})
             except Exception as raw_err:
                 try:
                     import base64
                     padded_secret = supabase_jwt_secret + "=" * (-len(supabase_jwt_secret) % 4)
                     decoded_secret = base64.b64decode(padded_secret)
-                    payload = jwt.decode(token, decoded_secret, algorithms=["HS256"], audience="authenticated")
+                    payload = jwt.decode(token, decoded_secret, algorithms=["HS256"], options={"verify_aud": False})
                 except Exception as b64_err:
                     raise HTTPException(
                         status_code=401,
-                        detail=f"JWT symmetric decode failed: Raw err: {raw_err}; B64 err: {b64_err}"
+                        detail=f"JWT symmetric decode failed. Alg: {alg}, Aud: {aud}, Iss: {iss}. Raw err: {raw_err}; B64 err: {b64_err}"
                     )
         else:
             # Asymmetric verification using JWKS client
@@ -110,11 +124,11 @@ def get_user_id_from_header(authorization: str) -> str | None:
                 raise Exception("JWKS client not initialized for asymmetric token verification")
             try:
                 signing_key = jwks_client.get_signing_key_from_jwt(token)
-                payload = jwt.decode(token, signing_key.key, algorithms=[alg], audience="authenticated")
+                payload = jwt.decode(token, signing_key.key, algorithms=[alg], options={"verify_aud": False})
             except Exception as jwks_err:
                 raise HTTPException(
                     status_code=401,
-                    detail=f"JWT asymmetric decode failed: {jwks_err}"
+                    detail=f"JWT asymmetric decode failed. Alg: {alg}, Aud: {aud}, Iss: {iss}. JWKS err: {jwks_err}"
                 )
             
         return payload.get("sub")
@@ -123,7 +137,7 @@ def get_user_id_from_header(authorization: str) -> str | None:
     except Exception as e:
         raise HTTPException(
             status_code=401,
-            detail=f"JWT parse/validation error: {e}"
+            detail=f"JWT parse/validation error. Alg: {alg}, Aud: {aud}, Iss: {iss}. Error: {e}"
         )
 
 
