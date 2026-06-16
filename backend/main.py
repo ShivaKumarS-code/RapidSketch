@@ -91,18 +91,40 @@ def get_user_id_from_header(authorization: str) -> str | None:
         
         if alg == "HS256":
             # Symmetric verification using local secret
-            payload = jwt.decode(token, supabase_jwt_secret, algorithms=["HS256"], audience="authenticated")
+            try:
+                payload = jwt.decode(token, supabase_jwt_secret, algorithms=["HS256"], audience="authenticated")
+            except Exception as raw_err:
+                try:
+                    import base64
+                    padded_secret = supabase_jwt_secret + "=" * (-len(supabase_jwt_secret) % 4)
+                    decoded_secret = base64.b64decode(padded_secret)
+                    payload = jwt.decode(token, decoded_secret, algorithms=["HS256"], audience="authenticated")
+                except Exception as b64_err:
+                    raise HTTPException(
+                        status_code=401,
+                        detail=f"JWT symmetric decode failed: Raw err: {raw_err}; B64 err: {b64_err}"
+                    )
         else:
             # Asymmetric verification using JWKS client
             if not jwks_client:
                 raise Exception("JWKS client not initialized for asymmetric token verification")
-            signing_key = jwks_client.get_signing_key_from_jwt(token)
-            payload = jwt.decode(token, signing_key.key, algorithms=[alg], audience="authenticated")
+            try:
+                signing_key = jwks_client.get_signing_key_from_jwt(token)
+                payload = jwt.decode(token, signing_key.key, algorithms=[alg], audience="authenticated")
+            except Exception as jwks_err:
+                raise HTTPException(
+                    status_code=401,
+                    detail=f"JWT asymmetric decode failed: {jwks_err}"
+                )
             
         return payload.get("sub")
+    except HTTPException:
+        raise
     except Exception as e:
-        print("JWT Decode error:", e)
-        return None
+        raise HTTPException(
+            status_code=401,
+            detail=f"JWT parse/validation error: {e}"
+        )
 
 
 def parse_response(response: str) -> list[dict]:
