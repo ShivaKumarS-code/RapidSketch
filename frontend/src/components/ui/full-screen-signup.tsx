@@ -65,7 +65,7 @@ export const FullScreenSignup = () => {
   };
 
   return (
-    <div className="min-h-screen !flex !items-center !justify-center bg-black p-6 md:p-12 relative overflow-hidden">
+    <div className="min-h-screen !flex !items-center !justify-center bg-black p-4 sm:p-6 md:p-12 relative overflow-hidden">
       {/* Grid Background Design */}
       <div className="pointer-events-none absolute inset-0 z-0 opacity-50">
         <div className="absolute inset-0 bg-gradient-to-tr from-orange-500/10 via-transparent to-transparent"></div>
@@ -84,7 +84,7 @@ export const FullScreenSignup = () => {
       <div className="w-full max-w-5xl !overflow-hidden !grid !grid-cols-1 md:!grid-cols-2 bg-zinc-950/80 rounded-3xl shadow-[0_0_50px_-12px_rgba(249,115,22,0.15)] border border-zinc-800/80 backdrop-blur-xl z-10">
         
         {/* Left Side: Solid Black Panel with Scoped Decorations */}
-        <div className="bg-[#030303] text-white p-8 md:p-12 !relative !overflow-hidden !flex !flex-col !justify-center min-h-[350px] md:min-h-[550px] border-b md:border-b-0 md:border-r border-zinc-800/60">
+        <div className="hidden md:!flex bg-[#030303] text-white p-8 md:p-12 !relative !overflow-hidden !flex-col !justify-center md:min-h-[550px] border-r border-zinc-800/60">
           {/* Scoped Gradient Overlay */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black z-10 pointer-events-none"></div>
 
@@ -107,7 +107,7 @@ export const FullScreenSignup = () => {
         </div>
 
         {/* Right Side: Translucent Dark Panel with Spacing */}
-        <div className="p-8 md:p-16 !flex !flex-col !justify-center bg-[#0c0c0e]/80 text-white !z-20 !relative">
+        <div className="p-6 sm:p-8 md:p-16 !flex !flex-col !justify-center bg-[#0c0c0e]/80 text-white !z-20 !relative">
           <div className="w-full max-w-md mx-auto !space-y-8">
             {/* Header section */}
             <div className="!space-y-3 !flex !flex-col !items-start">
